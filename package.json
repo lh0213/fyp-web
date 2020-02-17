@@ -1,0 +1,22 @@
+{
+  "name": "fyp-web",
+  "version": "1.0.0",
+  "description": "Treatment recommender",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liuhang0213/fyp-web.git"
+  },
+  "author": "Liu Hang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liuhang0213/fyp-web/issues"
+  },
+  "homepage": "https://github.com/liuhang0213/fyp-web#readme",
+  "dependencies": {
+    "d3": "^5.15.0"
+  }
+}
