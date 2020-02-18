@@ -1,6 +1,6 @@
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 960 - margin.right - margin.left,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 20, right: 0, bottom: 20, left: 300},
+    width = 1920 - margin.right - margin.left,
+    height = 1080 - margin.top - margin.bottom;
 
 var i = 0,
     duration = 750,
@@ -22,9 +22,19 @@ root = treeData[0];
 root.x0 = height / 2;
 root.y0 = 0;
 
-update(root);
+treatment_nodes = root.children;
+for (i = 0; i < treatment_nodes.length; i++) {
+    if (Math.random() > 0.2) {
+        toggle(treatment_nodes[i]);
+    } else {
+        for (j = 0; j < treatment_nodes[i].children.length; j++) {
+            toggle(treatment_nodes[i].children[j]);
+        }
+    }
+}
 
-d3.select(self.frameElement).style("height", "500px");
+d3.select(self.frameElement).style("height", "1080px");
+update(root)
 
 function update(source) {
 
@@ -33,16 +43,17 @@ function update(source) {
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 180; });
+    nodes.forEach(function(d) { d.y = d.depth * 450; });
 
     // Update the nodes…
     var node = svg.selectAll("g.node")
         .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
+
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .attr("transform", function(d, i) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
         .on("click", click);
 
     nodeEnter.append("circle")
@@ -50,11 +61,12 @@ function update(source) {
         .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
     nodeEnter.append("text")
-        .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
-        .attr("dy", ".35em")
+        .attr("x", function(d) { return d.children || d._children ? -15 : 15; })
+        .attr("dy", 6)
         .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
         .text(function(d) { return d.name; })
-        .style("fill-opacity", 1e-6);
+        .style("fill-opacity", 1e-6)
+        .style("font-size", "16pt");
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
@@ -62,7 +74,7 @@ function update(source) {
         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
     nodeUpdate.select("circle")
-        .attr("r", 10)
+        .attr("r", 12)
         .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
     nodeUpdate.select("text")
@@ -114,7 +126,7 @@ function update(source) {
 }
 
 // Toggle children on click.
-function click(d) {
+function toggle(d) {
     if (d.children) {
         d._children = d.children;
         d.children = null;
@@ -122,5 +134,10 @@ function click(d) {
         d.children = d._children;
         d._children = null;
     }
+}
+
+function click(d) {
+    toggle(d);
     update(d);
 }
+
