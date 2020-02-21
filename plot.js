@@ -1,15 +1,15 @@
-var margin = {top: 20, right: 0, bottom: 20, left: 300},
+const margin = {top: 20, right: 0, bottom: 20, left: 300},
     width = 1920 - margin.right - margin.left,
     height = 1080 - margin.top - margin.bottom;
 
-var i = 0,
+let i = 0,
     duration = 200,
     root;
 
-var tree = d3.layout.tree()
+const tree = d3.layout.tree()
     .size([height, width]);
 
-var svg = d3.select("body").append("svg")
+const svg = d3.select("body").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -33,7 +33,7 @@ for (i = 0; i < num_treatments; i++) {
 }
 
 d3.select(self.frameElement).style("height", "1080px");
-update(root)
+update(root);
 
 function update(source) {
 
@@ -57,7 +57,7 @@ function update(source) {
         .on("click", click);
 
     nodeEnter.append("circle")
-        .attr("r", 1e-6)
+        .attr("r", 1e-6);
 
     nodeEnter.append("rect")
         .attr("x", -16)
@@ -92,13 +92,19 @@ function update(source) {
         .style("fill-opacity", function (d) { return d.ranking ? ranking_to_opacity(d.ranking, num_treatments) : 1; })
         .style("font-weight", function (d) { return d.ranking && d.ranking === 1 ? "bold" : "normal"; });
 
+    // Bars for showing transitional probability
     nodeEnter.append("rect")
         .attr("x", -15)
-        .attr("y", 30)
-        .attr("height", function (d, i)  { return d.tr_prob ? d.tr_prob * 30 : 0 })
-        .attr("width", function (d, i)  { return d.tr_prob ? 20 : 0 })
-        .style("fill", "red");
-
+        .attr("y", -10)
+        .attr("height", function (d)  { return d.tr_prob ? d.tr_prob * 120 : 0 })
+        .attr("width", function (d)  { return d.tr_prob ? 20 : 0 })
+        .style("fill", function (d) {
+            if (d.parent.children) {
+                return d3.interpolateRdYlGn(1 - d.severity / d.parent.children.length);
+            } else {
+                return "#fff";
+            }
+        });
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
         .duration(duration)
@@ -143,7 +149,7 @@ function update(source) {
     link.exit().transition()
         .duration(duration)
         .attr("d", function(d) {
-            var o = {x: source.x, y: source.y};
+            let o = {x: source.x, y: source.y};
             return elbow({source: o, target: o});
         })
         .remove();
@@ -157,10 +163,9 @@ function update(source) {
 
 // Toggle children on click.
 function toggle(d) {
-    if (d.parent === "null") {
+    if (d.depth === 0) {
         return;
-    }
-    if (d.children) {
+    } else if (d.children) {
         d._children = d.children;
         d.children = null;
     } else {
@@ -170,8 +175,21 @@ function toggle(d) {
 }
 
 function click(d) {
-    toggle(d);
+    if (d.depth === 0) {
+        hideAll(d);
+    } else {
+        toggle(d);
+    }
     update(d);
+}
+
+function hideAll(root) {
+    for (i = 0; i < root.children.length; i++) {
+        let c = root.children[i];
+        if (c.children) {
+            toggle(c);
+        }
+    }
 }
 
 function ranking_to_opacity(r, total) {
