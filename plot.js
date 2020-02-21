@@ -22,18 +22,14 @@ root.y0 = 0;
 
 const treatment_nodes = root.children;
 const num_treatments = treatment_nodes.length;
-for (i = 0; i < num_treatments; i++) {
-    if (treatment_nodes[i].ranking > 2) {
-        toggle(treatment_nodes[i]);
-    } else {
-        for (j = 0; j < treatment_nodes[i].children.length; j++) {
-            toggle(treatment_nodes[i].children[j]);
-        }
-    }
-}
-
 d3.select(self.frameElement).style("height", "1080px");
 update(root);
+
+for (i = 0; i < num_treatments; i++) {
+    if (treatment_nodes[i].ranking > 2) {
+        collapse(treatment_nodes[i]);
+    }
+}
 
 function update(source) {
 
@@ -76,6 +72,14 @@ function update(source) {
         .style("font-size", "16pt")
         .style("font-weight", function (d) { return d.ranking && d.ranking === 1 ? "bold" : "normal"; });
 
+    nodeEnter.append("text")
+        .attr("x", -20)
+        .attr("dy", 8)
+        .attr("text-anchor", function(d) { return "end"; })
+        .text(function(d) { return "#" + d.ranking; })
+        .style("fill-opacity", function (d) { return d.ranking ? ranking_to_opacity(d.ranking, num_treatments) : 0; })
+        .style("font-size", "16pt")
+        .style("font-weight", function (d) { return d.ranking && d.ranking === 1 ? "bold" : "normal"; });
 
     nodeEnter.append("text")
         .attr("x", 15)
@@ -163,31 +167,55 @@ function update(source) {
 
 // Toggle children on click.
 function toggle(d) {
-    if (d.depth === 0) {
-        return;
-    } else if (d.children) {
-        d._children = d.children;
-        d.children = null;
+    if (d.children) {
+        collapse(d);
     } else {
-        d.children = d._children;
-        d._children = null;
+        expand(d);
     }
+}
+
+function expand(d) {
+   if (d._children) {
+       d.children = d._children.slice();
+       d._children = null;
+       update(d);
+   }
+}
+
+function collapse(d) {
+   if (d.children) {
+       d._children = d.children.slice();
+       d.children = null;
+       update(d);
+   }
 }
 
 function click(d) {
     if (d.depth === 0) {
         hideAll(d);
-    } else {
+    } else if (d.depth === 1) {
+        // Show complete subtree
+        if (d._children) {
+            expand(d);
+            for (i = 0; i < d.children.length; i++) {
+                expand(d.children[i]);
+            }
+        } else {
+            collapse(d);
+        }
+    } else if (d.depth === 2) {
         toggle(d);
     }
-    update(d);
 }
 
-function hideAll(root) {
-    for (i = 0; i < root.children.length; i++) {
-        let c = root.children[i];
-        if (c.children) {
-            toggle(c);
+function hideAll(r) {
+    // Should only be called on root node
+    if (r.children) {
+        for (i = 0; i < r.children.length; i++) {
+            let c = r.children[i];
+            if (c.children) {
+                click(c);
+            }
         }
     }
 }
