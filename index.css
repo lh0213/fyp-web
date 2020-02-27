@@ -1,3 +1,6 @@
+body {
+    padding: 5em;
+}
 .node {
     cursor: pointer;
 }
