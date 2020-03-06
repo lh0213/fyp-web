@@ -7,6 +7,11 @@
 </head>
 <body>
 <!-- load the d3.js library -->
+<label id="diagnosis-label">Diagnosis: </label><br/>
+<a id="diagnosis-href">Sensitivity analysis</a>
+<table id="diagnosis-table">
+
+</table>
 <table id="dosage-table">
     <tr>
         <th>Level<br></th>
@@ -39,6 +44,7 @@
         <td>&gt;0.45<br></td>
     </tr>
 </table>
+<div id="svg"></div>
 <script src="dist/d3.min.js"></script>
 <script src="dist/d3-color.v1.js"></script>
 <script src="dist/d3-interpolate.v1.js"></script>

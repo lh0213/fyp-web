@@ -1,6 +1,6 @@
 body {
-    padding: 5em;
 }
+
 .node {
     cursor: pointer;
 }
@@ -22,13 +22,18 @@ body {
 }
 
 #dosage-table {
+    display: none;
     position: absolute;
-    bottom: 2em;
-    right: 2em;
+    top: 3em;
+    left: 1em;
 }
 
 #dosage-table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
     padding: 0.5em;
+}
+
+#svg {
+    margin-left: 3em;
 }
